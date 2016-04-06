@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.assertTrue;
 
@@ -63,6 +60,24 @@ public class VCFParser implements Serializable {
 
     public void shutdown() throws IOException {
         schema.close();
+    }
+
+    private final int VCFSAMPLESTART = 9;
+    public List<String> getSamples(List<String> header){
+        String sampleLine = "";
+        List<String> samples = new ArrayList<String>();
+        for(String line : header){
+            if(line.startsWith("#CHROM")){
+                sampleLine = line;
+            }
+        }
+        String[] colHeaders = sampleLine.split("\t");
+        for(int i = 0; i< colHeaders.length; i++){
+            if(i>=VCFSAMPLESTART){
+                samples.add(colHeaders[i]);
+            }
+        }
+        return samples;
     }
 
     /**
@@ -104,7 +119,6 @@ public class VCFParser implements Serializable {
 
     }
 
-    public static final String Table = "VCFTable";
     public static final String[] families = {"samples"};
     public static final String LINE = "line";
 

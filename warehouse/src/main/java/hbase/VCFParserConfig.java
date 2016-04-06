@@ -28,8 +28,11 @@ public class VCFParserConfig {
     public static final String MAX_HEADER = "max-header";
 
     // todo: put this out in the properties file
+    public static final String BASE_FIELDS = "base";
+    public static final String ANNOTATION = "annotation";
+    public static final String SAMPLES = "samples";
     private static final String tableName = "variants";
-    private static final String[] columnFamily = {"base", "annotation", "samples"};
+    private static final String[] columnFamily = {BASE_FIELDS, ANNOTATION, SAMPLES};
 
     /**
      * configuration variables
@@ -126,5 +129,16 @@ public class VCFParserConfig {
 
     public Properties getProps() {
         return props;
+    }
+
+
+    //todo: load this information from a properties file
+    public String getVCFTable() {
+        return tableName;
+    }
+
+    //todo: load this information from a properties file
+    public String[] getVCFColumnFamilies() {
+        return columnFamily;
     }
 }

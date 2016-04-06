@@ -1,10 +1,14 @@
 package edu.mayo.genomics.model;
 
+import hbase.VCFParserConfig;
 import htsjdk.samtools.util.Locatable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -18,6 +22,8 @@ public class Variant extends SimpleInterval {
     private List<String> alts = null;
     private Double qual = null;
     private String filter = null;
+    //Sample - FormatData pairs (format data is the actual data for the sample in the VCF)
+    private HashMap<String,FormatData> format = null;
 
     public Variant(String contig, int start, int end) {
         super(contig, start, end);
@@ -31,7 +37,7 @@ public class Variant extends SimpleInterval {
      *
      * @param VCFLine - this takes a vcf line as input and constructs the variant object from it
      */
-    public Variant(String VCFLine) throws ParseException {
+    public Variant(String VCFLine, List<String> samples) throws ParseException {
         String[] tokens = VCFLine.split("\t");
         if(tokens.length > 9){
             //#CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT    SAMPLE
@@ -50,6 +56,11 @@ public class Variant extends SimpleInterval {
             //INFO
 
             int end = 0;
+
+            //add samples
+            for(int i = 0; i<tokens.length; i++){
+
+            }
 
         }else {
             throw new ParseException("Malformed VCF on line (Number of columns incorrect: " + tokens.length + ") " + VCFLine, 0);
@@ -88,5 +99,47 @@ public class Variant extends SimpleInterval {
      */
     public String pretty(){
         return this.toString();
+    }
+
+
+    public HashMap<String, FormatData> getFormat() {
+        return format;
+    }
+
+
+    public String encodeList(List<String> l, String delimiter){
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for(String next : l){
+            sb.append(next);
+            if(i < l.size() -1){
+                sb.append(",");
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * convert the data in this variant object into a put object for inserting into hbase.
+     * @return
+     * @param config - gives us a description of the table name and column familes so we can formalize the put correctly
+     */
+    public Put toPut(VCFParserConfig config){
+        Put p = new Put(Bytes.toBytes(hash()));
+
+        //base columns
+        byte[] basecf = Bytes.toBytes(VCFParserConfig.BASE_FIELDS);
+        p.addColumn(basecf,Bytes.toBytes("CHROM"),Bytes.toBytes(this.contig));
+        p.addColumn(basecf,Bytes.toBytes("POS"),Bytes.toBytes(this.getStart()));
+        p.addColumn(basecf,Bytes.toBytes("REF"),Bytes.toBytes(this.ref));
+        p.addColumn(basecf,Bytes.toBytes("ALT"),Bytes.toBytes(encodeList(this.alts,",")));
+
+
+
+//        HashMap<String,String> meta = sample.getMetadata();
+//        for(String key : meta.keySet()){
+//            p.addColumn(Bytes.toBytes(METADATA_CF), Bytes.toBytes(key), Bytes.toBytes(meta.get(key)));
+//        }
+        return p;
     }
 }

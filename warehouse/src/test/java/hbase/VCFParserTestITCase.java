@@ -15,15 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class VCFParserTestITCase extends TestCase {
 
-    static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(VCFParserTestITCase.class);
+    public static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(VCFParserTestITCase.class);
 
-
-    // Logger
-    private static final Logger LOG = LoggerFactory.getLogger(VCFParserTestITCase.class);
 
     private static SparkConf sconf;
     private static JavaSparkContext sc;
@@ -66,6 +65,8 @@ public class VCFParserTestITCase extends TestCase {
     public void testParser() throws Exception {
         setup();
 
+        List<String> expected = new ArrayList<String>(Arrays.asList("chr22_16157521_C_<NON_REF>", "samples", ""));
+
         VCFParser parser = new VCFParser(config);
         parser.parse("src/test/resources/testData/test.gvcf", config.getTableName());
 
@@ -75,6 +76,10 @@ public class VCFParserTestITCase extends TestCase {
         for(String line : pretty){
             System.err.println(line);
             i++;
+            //only check the first three lines
+            if(i == 3){
+
+            }
         }
 
         shutdown();

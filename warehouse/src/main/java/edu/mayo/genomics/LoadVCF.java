@@ -23,15 +23,16 @@ public class LoadVCF {
         logger.info("Starting LoadVCF... loading: " + filename);
         Configuration configuration = AutoConfigure.getConfiguration();
         try (Connection hcon = ConnectionFactory.createConnection(configuration)) {
-            HBaseUtil hutil = new HBaseUtil(hcon);
-            hutil.createTable(VCFParser.Table, VCFParser.families);
-            hutil.createTable(VCFParserConfig.getTableName(), VCFParserConfig.getColumnFamily());
 
             VCFParserConfig config;
             try (InputStream stream = LoadVCF.class.getResourceAsStream("/VCFParser.properties")) {
                 logger.info("Loading properties from stream: " + stream);
                 config = new VCFParserConfig(stream);
             }
+
+            HBaseUtil hutil = new HBaseUtil(hcon);
+            hutil.createTable(config.getVCFTable(), config.getVCFColumnFamilies());
+            hutil.createTable(VCFParserConfig.getTableName(), VCFParserConfig.getColumnFamily());
 
             VCFParser parser = new VCFParser(config);
             parser.parse(filename, VCFParserConfig.getTableName());

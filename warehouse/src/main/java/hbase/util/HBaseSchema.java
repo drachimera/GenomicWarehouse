@@ -32,6 +32,7 @@ public class HBaseSchema {
     public final String METADATA_CF = "meta";
     //todo:probably need a user table of some sort for ACLs ect in the metadata...
     //variants
+    //todo: the names for these things should not be declaired in multiple locations!!! VCFParser uses a config file which is probably prefered!
     public final String VARIANTS_TABLE = "variants";
     public final String ANNOTATION_CF = "annotation"; //also called INFO in VCF
     public final String SAMPLES_CF = "samples";       //columns to the right of format
